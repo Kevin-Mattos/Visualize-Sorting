@@ -4,12 +4,21 @@ class Node:
     def __init__(self, pos, fullSize, rect, value):
         self.value = value
         self.surf = rect#pygame.image.load('resources/blank.png').convert()
-        self.pos = self.getPos(pos, fullSize)
+        self.color = 255, 255, 255
+        self.fullsize = fullSize
 
-    def writeOnImage(self, value, screen):
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __repr__(self):
+        return int(self.value)
+
+    def changeValue(self, value, i, height, margin, blockSize):
         self.value = value
-        #self.surf = pygame.image.load('resources/{}.png'.format(value)).convert()
-        screen.blit(self.surf, self.pos)
+        
+        self.surf = pygame.Rect( i*(self.fullsize) + math.ceil(self.fullsize/2), height - margin - value , blockSize , blockSize + value )
+        
+        
 
     def getPos(self, pos, fullSize):
         linha = math.floor((pos[0] - fullSize/2)/fullSize)
