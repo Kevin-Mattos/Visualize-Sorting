@@ -7,11 +7,12 @@ BLACK = 0, 0, 0
 GREY = 200,200,200
 GREEN = 0,255,0
 BLUE = 0,0,255
+PURPLE = 128, 0, 128   
 
-blockSize = 15
+blockSize = 17
 margin = 5
 fullSize = blockSize + margin
-qtd = 35
+qtd = 25
 width, height = qtd*(fullSize), 3 * (fullSize)
 
 size = width + blockSize, height + blockSize 
@@ -19,10 +20,29 @@ pygame.init()
 
 screen = pygame.display.set_mode(size)
 screen.fill(BLACK)
+
+def checkIfQuit(ev):
+    for event in ev: 
+
+        #print(event)  
+        if(event.type == pygame.QUIT):
+            print('(x) clicked')
+            closeWindow()
+
+        if (event.type == pygame.KEYDOWN):
+            if (event.key == pygame.K_q):
+                print("q pressed, closing")
+                closeWindow()
+
+def closeWindow():
+    pygame.display.quit()
+    pygame.quit()
+    sys.exit()
+    
 def initializeVet(qtd):
     vet = []
     for i in range(qtd):
-        vet.append(random.randint(0,45))
+        vet.append(random.randint(0,qtd))
     return vet
     
 def initializeBoard(vet):
@@ -32,55 +52,103 @@ def initializeBoard(vet):
         size = vet[i]
         i += 1       
         rect = pygame.Rect(linha*(fullSize) + math.ceil(fullSize/2), height - margin - size , blockSize , blockSize + size )
-        node = Node((linha*fullSize, height-6), fullSize, rect, size)
+        node = Node((linha*fullSize, height-6), fullSize, rect, size, height, margin, blockSize)
         board.append(node)
         pygame.draw.rect(screen, WHITE, rect)
         #screen.blit(node.surf, node.pos)
     return board
 
-def basicSort(vet, size):
+def basicSort(vet):
 
-    for i in range(size):
-        for j in range(size):
+    for i in range(len(vet)):
+        for j in range(len(vet)):
             if(vet[i] < vet[j]):
                 aux = vet[i].value
-                vet[i].changeValue( vet[j].value, i, height, margin, blockSize)
-                vet[j].changeValue(aux, j, height, margin, blockSize)
+                vet[i].changeValue(vet[j].value, i)
+                vet[j].changeValue(aux, j)
                 vet[i].color = RED
                 vet[j].color = GREEN
-                drawBoard(vet, size)
-    drawBoard(vet, size)
+                drawBoard(vet)
+    drawBoard(vet)
 
-def insertionSort(vet, size):
-    #orderedList = []
-    for i in range(1, size):
+def quickSort(vet, p, r):
+    if(p < r):
+        j = separa(vet, p, r)
+        quickSort(vet, p, j - 1)
+        quickSort(vet, j + 1, r)
+    #drawBoard(vet)
+
+
+def separa(vet, p, r):
+    c = vet[r]
+    j = p
+    print(r, p)
+    #pNode = vet[p ]
+    rNode = vet[int(r/2)]
+    rNode.changeColor(RED)
+    #pNode.changeColor(PURPLE)
+    #pNode.fixedColor = True
+    rNode.fixedColor = True
+    for k in range(p, r):
+        if(vet[k] <= c):
+            t = vet[j].value
+            vet[j].changeValue( vet[k].value, j)
+            vet[k].changeValue( t, k)
+            j+=1
+            vet[k].changeColor(BLUE)#color = RED
+            vet[j].changeColor(GREEN)#color = GREEN
+            fixedNode = vet[r]
+            fixedNode.color = GREY
+            #fixedNode.fixedColor = True
+            
+
+            drawBoard(vet)
+            #fixedNode.fixedColor = False
+    t = vet[j].value
+    vet[j].changeValue( vet[r].value, j)
+    vet[r].changeValue( t, r)
+    vet[j].color = GREEN
+    #vet[r].color = RED
+    #pNode.fixedColor = False
+    rNode.fixedColor = False
+    drawBoard(vet)
+    #fixedNode.fixedColor = False
+    return j
+
+
+
+def insertionSort(vet):    
+    for i in range(1, len(vet)):
         aux = vet[i].value
         j = i - 1
         while (j >= 0 and aux < vet[j].value):
-            vet[j + 1].changeValue(vet[j].value, j+1, height, margin, blockSize)
+            vet[j + 1].changeValue(vet[j].value, j+1)
             vet[i].color = BLUE
             vet[ j + 1].color = RED
             vet[j].color = GREEN
             j-=1
-            drawBoard(vet, size)
-        vet[j+1].changeValue(aux, j +1, height, margin, blockSize)
+            drawBoard(vet)
+        vet[j+1].changeValue(aux, j + 1)
 
-    drawBoard(vet, size)
+    drawBoard(vet)
 
     imp(vet)
 
 def imp(vet):
-    for i in range(qtd):
-        print(vet[i].value)
+    for i in range(len(vet)):
+        print(vet[i])
 
-def drawBoard(vet, size):
+def drawBoard(vet, sleepTime = 0.06):
     screen.fill(BLACK)
-    for i in range(size):       
+    for i in range(len(vet)):       
         pygame.draw.rect(screen, vet[i].color , vet[i].surf)
-        vet[i].color = WHITE
+        vet[i].changeColor(WHITE)
+        #vet[i].color = WHITE
         #time.sleep(0.004)
+    ev = pygame.event.get()
+    checkIfQuit(ev)
     pygame.display.flip()
-    time.sleep(0.06)
+    time.sleep(sleepTime)
 
 vet = initializeVet(qtd)
 board = initializeBoard(vet)
@@ -89,20 +157,16 @@ time.sleep(1)
 
 
 print("___________________________")
-#basicSort(board, qtd)
-insertionSort(board, qtd)
+#basicSort(board)
+#insertionSort(board)
+quickSort(board, 0, len(vet) - 1)
 
+drawBoard(board)
+imp(board)
 while 1:    
 # proceed events
     pygame.display.flip()
     ev = pygame.event.get()
+    checkIfQuit(ev)
     
-    for event in ev: 
 
-        #print(event)       
-        if (event.type == pygame.KEYDOWN):
-            if (event.key == pygame.K_LEFT):
-                print("arrow pressed, exiting game")
-                pygame.display.quit()
-                pygame.quit()
-                sys.exit()
