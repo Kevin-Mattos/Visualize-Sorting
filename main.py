@@ -21,7 +21,8 @@ pygame.init()
 screen = pygame.display.set_mode(size)
 screen.fill(BLACK)
 
-def checkIfQuit(ev):
+def checkIfQuit():
+    ev = pygame.event.get()
     for event in ev: 
 
         #print(event)  
@@ -31,14 +32,14 @@ def checkIfQuit(ev):
 
         if (event.type == pygame.KEYDOWN):
             if (event.key == pygame.K_q):
-                print("q pressed, closing")
+                print('q pressed, closing')
                 closeWindow()
 
 def closeWindow():
     pygame.display.quit()
     pygame.quit()
     sys.exit()
-    
+
 def initializeVet(qtd):
     vet = []
     for i in range(qtd):
@@ -134,6 +135,24 @@ def insertionSort(vet):
 
     imp(vet)
 
+def bubbleSort(vet):
+    swapped = True
+    while(swapped):
+        swapped = False
+        for i in range(len(vet) - 1):
+            if(vet[i] > vet[i + 1]):
+                aux = vet[i].value
+                vet[i].changeValue(vet[i + 1].value, i)
+                vet[i + 1].changeValue(aux, i + 1)
+                vet[i].changeColor(RED)
+                vet[i + 1].changeColor(GREEN)
+                drawBoard(vet)
+                swapped = True
+        drawBoard(vet)
+        
+
+
+
 def imp(vet):
     for i in range(len(vet)):
         print(vet[i])
@@ -145,8 +164,8 @@ def drawBoard(vet, sleepTime = 0.06):
         vet[i].changeColor(WHITE)
         #vet[i].color = WHITE
         #time.sleep(0.004)
-    ev = pygame.event.get()
-    checkIfQuit(ev)
+    
+    checkIfQuit()
     pygame.display.flip()
     time.sleep(sleepTime)
 
@@ -156,17 +175,17 @@ pygame.display.flip()
 time.sleep(1)
 
 
-print("___________________________")
+print('___________________________')
 #basicSort(board)
 #insertionSort(board)
-quickSort(board, 0, len(vet) - 1)
+#quickSort(board, 0, len(vet) - 1)
+bubbleSort(board)
 
 drawBoard(board)
 imp(board)
 while 1:    
 # proceed events
     pygame.display.flip()
-    ev = pygame.event.get()
-    checkIfQuit(ev)
+    checkIfQuit()
     
 
